@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["cstr_core","cty","libc","memchr","oqs","oqs_sys","proc_macro2","quote","serde","serde_derive","syn","unicode_xid"];

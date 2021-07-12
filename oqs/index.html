@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Friendly bindings to liboqs"><meta name="keywords" content="rust, rustlang, rust-lang, oqs"><title>oqs - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../oqs/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate oqs</p><div class="block version"><p>Version 0.7.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all oqs's items</p></a><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="oqs" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">oqs</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/oqs/lib.rs.html#1-121" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Friendly bindings to liboqs</p>
+<p>See the <a href="kem/struct.Kem.html"><code>kem::Kem</code></a> and <a href="sig/struct.Sig.html"><code>sig::Sig</code></a> structs for how to use this crate.</p>
+<h1 id="example-some-signed-kex" class="section-header"><a href="#example-some-signed-kex">Example: Some signed KEX</a></h1>
+<p>This protocol has no replay protection!</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">oqs</span>::<span class="kw-2">*</span>;
+<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="ident">oqs::init</span>(); <span class="comment">// Important: initialize liboqs</span>
+    <span class="kw">let</span> <span class="ident">sigalg</span> <span class="op">=</span> <span class="ident">sig::Sig::new</span>(<span class="ident">sig::Algorithm::Dilithium2</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">kemalg</span> <span class="op">=</span> <span class="ident">kem::Kem::new</span>(<span class="ident">kem::Algorithm::Kyber512</span>)<span class="question-mark">?</span>;
+    <span class="comment">// A&#39;s long-term secrets</span>
+    <span class="kw">let</span> (<span class="ident">a_sig_pk</span>, <span class="ident">a_sig_sk</span>) <span class="op">=</span> <span class="ident">sigalg</span>.<span class="ident">keypair</span>()<span class="question-mark">?</span>;
+    <span class="comment">// B&#39;s long-term secrets</span>
+    <span class="kw">let</span> (<span class="ident">b_sig_pk</span>, <span class="ident">b_sig_sk</span>) <span class="op">=</span> <span class="ident">sigalg</span>.<span class="ident">keypair</span>()<span class="question-mark">?</span>;
+
+    <span class="comment">// assumption: A has (a_sig_sk, a_sig_pk, b_sig_pk)</span>
+    <span class="comment">// assumption: B has (b_sig_sk, b_sig_pk, a_sig_pk)</span>
+
+    <span class="comment">// A -&gt; B: kem_pk, signature</span>
+    <span class="kw">let</span> (<span class="ident">kem_pk</span>, <span class="ident">kem_sk</span>) <span class="op">=</span> <span class="ident">kemalg</span>.<span class="ident">keypair</span>()<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">sigalg</span>.<span class="ident">sign</span>(<span class="ident">kem_pk</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">a_sig_sk</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// B -&gt; A: kem_ct, signature</span>
+    <span class="ident">sigalg</span>.<span class="ident">verify</span>(<span class="ident">kem_pk</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">signature</span>, <span class="kw-2">&amp;</span><span class="ident">a_sig_pk</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">kem_ct</span>, <span class="ident">b_kem_ss</span>) <span class="op">=</span> <span class="ident">kemalg</span>.<span class="ident">encapsulate</span>(<span class="kw-2">&amp;</span><span class="ident">kem_pk</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">sigalg</span>.<span class="ident">sign</span>(<span class="ident">kem_ct</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">b_sig_sk</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// A verifies, decapsulates, now both have kem_ss</span>
+    <span class="ident">sigalg</span>.<span class="ident">verify</span>(<span class="ident">kem_ct</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">signature</span>, <span class="kw-2">&amp;</span><span class="ident">b_sig_pk</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">a_kem_ss</span> <span class="op">=</span> <span class="ident">kemalg</span>.<span class="ident">decapsulate</span>(<span class="kw-2">&amp;</span><span class="ident">kem_sk</span>, <span class="kw-2">&amp;</span><span class="ident">kem_ct</span>)<span class="question-mark">?</span>;
+    <span class="macro">assert_eq!</span>(<span class="ident">a_kem_ss</span>, <span class="ident">b_kem_ss</span>);
+
+    <span class="prelude-val">Ok</span>(())
+}</pre></div>
+</div><h2 id="reexports" class="section-header"><a href="#reexports">Re-exports</a></h2>
+<table><tr class="import-item"><td><code>pub use <a class="mod" href="../oqs_sys/index.html" title="mod oqs_sys">oqs_sys</a> as ffi;</code></td><td class="docblock-short"></td></tr></table><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<table><tr class="module-item"><td><a class="mod" href="kem/index.html" title="oqs::kem mod">kem</a></td><td class="docblock-short"><p>KEM API</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="sig/index.html" title="oqs::sig mod">sig</a></td><td class="docblock-short"><p>Signature API</p>
+</td></tr></table><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<table><tr class="module-item"><td><a class="macro" href="macro.newtype_buffer.html" title="oqs::newtype_buffer macro">newtype_buffer</a></td><td class="docblock-short"><p>Implements a buffer for cryptographic objects</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.Error.html" title="oqs::Error enum">Error</a></td><td class="docblock-short"><p>Possible errors</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.init.html" title="oqs::init fn">init</a></td><td class="docblock-short"><p>Initialize liboqs</p>
+</td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<table><tr class="module-item"><td><a class="type" href="type.Result.html" title="oqs::Result type">Result</a></td><td class="docblock-short"><p>Result type for operations that may fail</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="oqs" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script></body></html>
